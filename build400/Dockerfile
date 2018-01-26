@@ -43,41 +43,64 @@ RUN apt-get install -y \
   scite \
   vim
 
+ADD jdk-9.0.1_linux-x64_bin.tar.gz /src/jdk/
+RUN mkdir -p /usr/lib/jvm/ && \
+  mv /src/jdk/jdk-9.0.1 /usr/lib/jvm/ && \
+  update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-9.0.1/bin/javac 1 && \
+  update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-9.0.1/bin/java 1 && \
+  update-alternatives --install /usr/bin/javaws javaws /usr/lib/jvm/jdk-9.0.1/bin/javaws 1
 
-#ADD jdk-9.0.1_linux-x64_bin.tar.gz /src/jdk/
-#RUN mkdir -p /usr/lib/jvm/ && \
-#  mv /src/jdk/jdk-9.0.1 /usr/lib/jvm/ && \
-#  update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-9.0.1/bin/javac 1 && \
-#  update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-9.0.1/bin/java 1 && \
-#  update-alternatives --install /usr/bin/javaws javaws /usr/lib/jvm/jdk-9.0.1/bin/javaws 1
-
-#RUN groupadd -r --gid 1000 builder && useradd -r --uid 1000 -g builder -G audio,video builder \
-#    && mkdir -p /home/builder/Downloads && chown -R builder:builder /home/builder
-#USER builder
-
-RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
-    apt-get update && apt-get install -y software-properties-common && \
-    add-apt-repository ppa:webupd8team/java -y && \
-    apt-get update && \
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
-    apt-get install -y oracle-java8-installer libxext-dev libxrender-dev libxtst-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
 
 # Install libgtk as a separate step so that we can share the layer above with
 # the netbeans image
-RUN apt-get update && apt-get install -y libgtk2.0-0 libcanberra-gtk-module
+RUN apt-get install -y libgtk2.0-0 libcanberra-gtk-module
 
-RUN wget http://eclipse.c3sl.ufpr.br/technology/epp/downloads/release/luna/SR1/eclipse-java-luna-SR1-linux-gtk-x86_64.tar.gz -O /tmp/eclipse.tar.gz -q && \
-    echo 'Installing eclipse' && \
-    tar -xf /tmp/eclipse.tar.gz -C /opt && \
-    rm /tmp/eclipse.tar.gz
+RUN apt-get install -y \
+  supervisor
 
-ADD run /usr/local/bin/eclipse
+RUN apt-get install -y \
+  openssh-server pwgen sudo vim-tiny
 
-RUN chmod +x /usr/local/bin/eclipse && \
-    mkdir -p /home/developer && \
+RUN apt-get install -y \
+  net-tools
+
+RUN apt-get install -y \
+  gtk2-engines-murrine
+
+RUN apt-get install -y \
+  nginx
+
+RUN apt-get install -y \
+  python-pip python-dev build-essential
+
+RUN apt-get install -y \
+  gtk2-engines-pixbuf gtk2-engines-murrine
+
+RUN apt-get install -y \
+  dbus-x11 x11-utils
+  
+RUN apt-get install -y \
+  x11vnc
+  
+RUN apt-get install -y \
+  xvfb
+
+#RUN apt-get install -y \
+#  lxde
+
+RUN apt-get install -y \
+  mesa-utils libgl1-mesa-dri
+  
+RUN apt-get install -y \
+  ttf-ubuntu-font-family \
+  fonts-wqy-microhei \
+  gnome-themes-standard
+
+RUN apt-get autoclean \
+  && apt-get autoremove \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /home/developer && \
     echo "developer:x:1000:1000:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
     echo "developer:x:1000:" >> /etc/group && \
     echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
@@ -88,5 +111,5 @@ RUN chmod +x /usr/local/bin/eclipse && \
 USER developer
 ENV HOME /home/developer
 WORKDIR /home/developer
-CMD /usr/local/bin/eclipse
+
 
