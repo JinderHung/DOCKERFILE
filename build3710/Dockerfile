@@ -32,7 +32,8 @@ RUN apt-get update && apt-get install -y \
   autoconf \
   flex \
   pkgconf \
-  libtool
+  libtool \
+  default-jdk
 
 RUN apt-get autoremove
 RUN apt-get clean
