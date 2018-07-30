@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
   flex \
   pkgconf \
   libtool \
+  ruby \
   default-jdk
 
 RUN apt-get autoremove
